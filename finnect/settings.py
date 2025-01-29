@@ -226,3 +226,4 @@ CSRF_TRUSTED_ORIGINS = [
 LOCKOUT_DURATION = timedelta(minutes=1)
 MAX_LOGIN_ATTEMPTS = 3
 OTP_EXPIRATION = timedelta(minutes=1)
+BANK_NAME = getenv("BANK_NAME")

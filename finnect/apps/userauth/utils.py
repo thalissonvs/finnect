@@ -6,6 +6,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from loguru import logger
 
 
@@ -51,3 +53,22 @@ def send_account_blocked_email(email, user):
         logger.info(f'Account blocked email sent successfully to: {email}')
     except Exception as exc:
         logger.error(f'Error sending account blocked email to {email}: {exc}')
+
+
+def generate_username() -> str:
+    bank_name = settings.BANK_NAME
+    words = bank_name.split()
+    prefix = "".join([word[0] for word in words]).upper()
+    remaining_length = 12 - len(prefix) - 1 # one for the dash
+    random_chars = "".join(
+        random.choices(string.ascii_letters + string.digits, k=remaining_length)
+    )
+    username = f"{prefix}-{random_chars}"
+    return username
+
+
+def validate_email_address(email: str) -> None:
+    try:
+        validate_email(email)
+    except ValidationError:
+        raise ValidationError(_("Enter a valid email address."))
