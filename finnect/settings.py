@@ -83,7 +83,7 @@ ROOT_URLCONF = "finnect.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [str(APPS_DIR / "templates")],
+        "DIRS": [str(BASE_DIR / "finnect" / "templates")], # global templates
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

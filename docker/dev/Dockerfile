@@ -22,4 +22,3 @@ COPY ./docker/dev/start.sh /start.sh
 
 RUN sed -i 's/\r$//g' /start.sh \
     && chmod +x /start.sh
-
