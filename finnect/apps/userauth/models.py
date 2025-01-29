@@ -107,3 +107,47 @@ class User(AbstractUser):
             self.save()
             return True
         return False
+    
+    def handle_failed_login_attempts(self) -> None:
+        self.failed_login_attempts += 1
+        self.last_failed_login = timezone.now()
+        if self.failed_login_attempts >= settings.MAX_LOGIN_ATTEMPTS:
+            self.account_status = self.AccountStatus.BLOCKED
+            self.save()
+            send_account_blocked_email(self.email, self)
+
+    def reset_failed_login_attempts(self) -> None:
+        self.failed_login_attempts = 0
+        self.last_failed_login = None
+        self.account_status = self.AccountStatus.ACTIVE
+        self.save()
+    
+    def unlock_account(self) -> None:
+        if self.account_status == self.AccountStatus.BLOCKED:
+            self.account_status = self.AccountStatus.ACTIVE
+            self.failed_login_attempts = 0
+            self.last_failed_login = None
+            self.save()
+    
+    def has_role_permission(self, role_name: str) -> bool:
+        return self.role == role_name
+    
+    @property
+    def is_account_blocked(self) -> bool:
+        return self.account_status == self.AccountStatus.BLOCKED
+    
+    @property
+    def is_account_active(self) -> bool:
+        return self.account_status == self.AccountStatus.ACTIVE
+
+    @property
+    def full_name(self) -> str:
+        return f'{self.first_name} {self.last_name}'.title().strip()
+    
+    def __str__(self) -> str:
+        return self.full_name
+    
+    class Meta:
+        verbose_name = _("User")
+        verbose_name_plural = _("Users")
+        ordering = ["-date_joined"]

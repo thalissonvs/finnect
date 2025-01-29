@@ -163,6 +163,7 @@ STATIC_ROOT = BASE_DIR / "finnect/staticfiles"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+AUTH_USER_MODEL = "userauth.User"
 
 ADMIN_URL = getenv("ADMIN_URL")
 SITE_NAME = getenv("SITE_NAME")
