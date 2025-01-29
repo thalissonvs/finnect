@@ -14,6 +14,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from os import getenv, path
 from loguru import logger
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -214,3 +215,14 @@ LOGGING = {
         "level": "DEBUG",
     },
 }
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost",
+    "https://localhost",
+    "http://127.0.0.1",
+    "https://127.0.0.1",
+]
+
+LOCKOUT_DURATION = timedelta(minutes=1)
+MAX_LOGIN_ATTEMPTS = 3
+OTP_EXPIRATION = timedelta(minutes=1)

@@ -8,6 +8,7 @@
     <h2>Your One-Time Password.</h2>
     <p>Dear {{ user.full_name }},</p>
     <p>Your login OTP is <strong>{{ otp }}</strong></p>
+    <p>This OTP will expire in <strong> {{ otp_expiration }} </strong> minutes</p>
     <p>If you didn't request this OTP, please contact our customer care team immediately.</p>
     <p>Best regards,</p>
     <p><strong>The {{ site_name }} Team</strong></p>
