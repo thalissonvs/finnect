@@ -61,7 +61,7 @@ def generate_username() -> str:
     prefix = "".join([word[0] for word in words]).upper()
     remaining_length = 12 - len(prefix) - 1 # one for the dash
     random_chars = "".join(
-        random.choices(string.ascii_letters + string.digits, k=remaining_length)
+        random.choices(string.ascii_uppercase + string.digits, k=remaining_length)
     )
     username = f"{prefix}-{random_chars}"
     return username

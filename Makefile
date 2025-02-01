@@ -14,19 +14,19 @@ config:
 	docker compose -f docker-compose-local.yml config
 
 makemigrations:
-	docker compose -f docker-compose-local.yml run --rm api python manage.py makemigrations
+	docker compose -f docker-compose-local.yml exec api python manage.py makemigrations
 
 migrate:
-	docker compose -f docker-compose-local.yml run --rm api python manage.py migrate
+	docker compose -f docker-compose-local.yml exec api python manage.py migrate
 
 collectstatic:
-	docker compose -f docker-compose-local.yml run --rm api python manage.py collectstatic --no-input --clear
+	docker compose -f docker-compose-local.yml exec api python manage.py collectstatic --no-input --clear
 
 superuser:
-	docker compose -f docker-compose-local.yml run --rm api python manage.py createsuperuser
+	docker compose -f docker-compose-local.yml exec api python manage.py createsuperuser
 
 flush:
-	docker compose -f docker-compose-local.yml run --rm api python manage.py flush
+	docker compose -f docker-compose-local.yml exec api python manage.py flush
 
 db:
 	docker compose -f docker-compose-local.yml exec postgres psql --username=root --dbname=finnect
