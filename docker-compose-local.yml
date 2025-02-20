@@ -66,19 +66,19 @@ services:
 
   celeryworker:
     <<: *api
-    command: /start-celeryworker.sh
+    command: /start_celeryworker.sh
   
   flower:
     <<: *api
-    command: /start-flower.sh
+    command: /start_flower.sh
     ports:
       - "5554:5555"
     volumes:
-      -flower_db:/app/flower_db
+      - flower_db:/app/flower_db
 
   celerybeat:
     <<: *api
-    command: /start-celerybeat.sh
+    command: /start_celerybeat.sh
 
   nginx:
     image: nginx:latest

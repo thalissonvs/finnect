@@ -18,7 +18,10 @@ COPY . ${APP_HOME}
 RUN pip install poetry
 RUN poetry install
 
-COPY ./docker/dev/start.sh /start.sh
+COPY ./docker/dev/scripts/start.sh /start.sh
+COPY ./docker/dev/scripts/start_celeryworker.sh /start_celeryworker.sh
+COPY ./docker/dev/scripts/start_celerybeat.sh /start_celerybeat.sh
+COPY ./docker/dev/scripts/start_flower.sh /start_flower.sh
 
-RUN sed -i 's/\r$//g' /start.sh \
-    && chmod +x /start.sh
+RUN sed -i 's/\r$//g' /start.sh /start_celeryworker.sh /start_celerybeat.sh /start_flower.sh \
+    && chmod +x /start.sh /start_celeryworker.sh /start_celerybeat.sh /start_flower.sh
