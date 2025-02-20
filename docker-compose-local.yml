@@ -15,6 +15,10 @@ services:
         condition: service_healthy
       mailpit:
         condition: service_started
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
     command: /start.sh
   
   postgres:
@@ -43,7 +47,39 @@ services:
       MP_DATA_FILE: /data/mailpit.db
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
+  
+
+  redis:
+    image: redis:latest
+    command: redis-server --appendonly yes
+    ports:
+      - "6378:6379"
     
+  rabbitmq:
+    image: rabbitmq:latest
+    ports:
+      - "5674:5672"
+      - "15674:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_logs:/var/log/rabbitmq
+
+  celeryworker:
+    <<: *api
+    command: /start-celeryworker.sh
+  
+  flower:
+    <<: *api
+    command: /start-flower.sh
+    ports:
+      - "5554:5555"
+    volumes:
+      -flower_db:/app/flower_db
+
+  celerybeat:
+    <<: *api
+    command: /start-celerybeat.sh
+
   nginx:
     image: nginx:latest
     restart: always
@@ -60,3 +96,6 @@ volumes:
   postgres_data:
   mailpit_data:
   logs_store:
+  rabbitmq_data:
+  rabbitmq_logs:
+  flower_db:
