@@ -16,6 +16,7 @@ class ContentViewAdmin(admin.ModelAdmin):
         'viewer_ip',
         'last_viewed',
         'created_at',
+        'updated_at',
     ]
     list_filter = ['content_type', 'user', 'created_at']
     date_hierarchy = 'last_viewed'
@@ -51,6 +52,14 @@ class ContentViewAdmin(admin.ModelAdmin):
     
 
 class ContentViewInline(GenericTabularInline):
+    """
+    Uma classe Inline serve para exibir um modelo relacionado em uma página de
+    edição de um modelo principal. Neste caso, a classe ContentViewInline exibe
+    visualizações de conteúdo em uma página de edição de um modelo de conteúdo
+    específico. Por exemplo, se quisermos exibir visualizações de um Post em
+    uma página de edição de Post, podemos adicionar esta classe ao modelo PostAdmin
+    no campo `inlines`.
+    """
     model = ContentView
     extra = 0
     readonly_fields = [
