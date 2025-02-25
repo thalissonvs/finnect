@@ -65,7 +65,7 @@ class Profile(TimeStampedModel):
         _('Gender'), max_length=8, choices=Gender.choices, default=Gender.MALE
     )
     date_of_birth = models.DateField(_('Date of Birth'))
-    coutry_of_birth = CountryField(_('Country of Birth', default='BR'))
+    coutry_of_birth = CountryField(_('Country of Birth'), default='BR')
     place_of_birth = models.CharField(_('Place of Birth'), max_length=255)
     marital_status = models.CharField(
         _('Marital Status'),
