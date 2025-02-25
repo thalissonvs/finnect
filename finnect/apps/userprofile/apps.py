@@ -6,3 +6,6 @@ class UserprofileConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "finnect.apps.userprofile"
     verbose_name = _("User Profile")
+
+    def ready(self) -> None:
+        import finnect.apps.userprofile.signals
