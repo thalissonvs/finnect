@@ -52,9 +52,6 @@ class Profile(TimeStampedModel):
         RETIRED = ('retired', _('Retired'))
         STUDENT = ('student', _('Student'))
 
-    # o campo related_name permite cria um relação inversa, permitindo
-    # acessar o perfil de um usuário a partir do modelo User. O default é
-    # `profile_set`, mas podemos alterar para `profile` para facilitar o acesso.
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name='profile'
     )
@@ -142,3 +139,45 @@ class Profile(TimeStampedModel):
     signature_photo_url = models.URLField(
         _('Signature Photo URL'), blank=True, null=True
     )
+
+    def clean(self) -> None:
+        super().clean()
+        if self.identification_issue_date and self.identification_expiry_date:
+            if (
+                self.identification_issue_date
+                > self.identification_expiry_date
+            ):
+                raise ValidationError(
+                    _('Issue date must be before expiry date.')
+                )
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def is_complete_with_next_of_kin(self) -> bool:
+        required_fields = [
+            self.title,
+            self.gender,
+            self.date_of_birth,
+            self.coutry_of_birth,
+            self.place_of_birth,
+            self.marital_status,
+            self.identification_means,
+            self.identification_issue_date,
+            self.identification_expiry_date,
+            self.nationality,
+            self.phone_number,
+            self.address,
+            self.city,
+            self.country,
+            self.employment_status,
+            self.photo,
+            self.id_photo,
+            self.signature_photo,
+        ]
+
+        return all(required_fields) and self.next_of_kin.exists()
+
+    def __str__(self) -> str:
+        return f"{self.title} {self.user.first_name}'s Profile"
