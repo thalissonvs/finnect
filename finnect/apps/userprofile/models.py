@@ -108,7 +108,7 @@ class Profile(TimeStampedModel):
         null=True,
     )
     date_of_employment = models.DateField(
-        _('Date of Employment', blank=True, null=True)
+        _('Date of Employment'), blank=True, null=True
     )
     employer_address = models.CharField(
         _('Employer Address'), max_length=100, blank=True, null=True
