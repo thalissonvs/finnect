@@ -139,17 +139,20 @@ class Profile(TimeStampedModel):
     signature_photo_url = models.URLField(
         _('Signature Photo URL'), blank=True, null=True
     )
+    next_of_kin = models.ManyToManyField(
+        'NextOfKin', related_name='profile', blank=True
+    )
 
     def clean(self) -> None:
         super().clean()
-        if self.identification_issue_date and self.identification_expiry_date:
-            if (
-                self.identification_issue_date
-                > self.identification_expiry_date
-            ):
-                raise ValidationError(
-                    _('Issue date must be before expiry date.')
-                )
+        if (
+            not self.identification_issue_date
+            and not self.identification_expiry_date
+        ):
+            return
+
+        if self.identification_issue_date > self.identification_expiry_date:
+            raise ValidationError(_('Issue date must be before expiry date.'))
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         self.full_clean()
@@ -181,3 +184,71 @@ class Profile(TimeStampedModel):
 
     def __str__(self) -> str:
         return f"{self.title} {self.user.first_name}'s Profile"
+
+
+class NextOfKin(TimeStampedModel):
+    class Salutation(models.TextChoices):
+        MR = ('mr', _('Mr.'))
+        MRS = ('mrs', _('Mrs.'))
+        MISS = ('miss', _('Miss'))
+
+    class Gender(models.TextChoices):
+        MALE = ('male', _('Male'))
+        FEMALE = ('female', _('Female'))
+        OTHER = ('other', _('Other'))
+
+    profile = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, related_name='next_of_kin'
+    )
+    title = models.CharField(
+        _('Salutation'),
+        max_length=5,
+        choices=Salutation.choices,
+    )
+    first_name = models.CharField(_('First Name'), max_length=50)
+    last_name = models.CharField(_('Last Name'), max_length=50)
+    other_names = models.CharField(_('Other Names'), max_length=50, blank=True)
+    date_of_birth = models.DateField(_('Date of Birth'))
+    gender = models.CharField(
+        _('Gender'), max_length=8, choices=Gender.choices
+    )
+    relationship = models.CharField(_('Relationship'), max_length=50)
+    email_address = models.EmailField(_('Email Address'), db_index=True)
+    phone_number = PhoneNumberField(_('Phone Number'))
+    address = models.TextField(_('Address'), max_length=100)
+    city = models.CharField(_('City'), max_length=50)
+    country = CountryField(_('Country'))
+    is_primary = models.BooleanField(
+        _('Is Primary Next of Kin'), default=False
+    )
+
+    def clean(self) -> None:
+        super().clean()
+
+        if not self.is_primary:
+            return
+
+        primary_kin = NextOfKin.objects.filter(
+            profile=self.profile, is_primary=True
+        ).exclude(pk=self.pk)
+
+        if primary_kin.exists():
+            raise ValidationError(
+                _('There can only be one primary next of kin.')
+            )
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return f'{self.first_name} {self.last_name} - Next of Kin for {self.profile.user.full_name}'
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['profile', 'is_primary'],
+                condition=models.Q(is_primary=True),
+                name='unique_primary_next_of_kin',
+            )
+        ]
