@@ -139,9 +139,6 @@ class Profile(TimeStampedModel):
     signature_photo_url = models.URLField(
         _('Signature Photo URL'), blank=True, null=True
     )
-    next_of_kin = models.ManyToManyField(
-        'NextOfKin', related_name='profile', blank=True
-    )
 
     def clean(self) -> None:
         super().clean()
