@@ -1,11 +1,13 @@
 import uuid
 from typing import Any, Optional
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError, models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
+User = get_user_model()
 
 
 class TimeStampedModel(models.Model):
@@ -94,8 +96,8 @@ class ContentView(TimeStampedModel):
     def record_view(
         cls,
         content_object: Any,
-        user: Optional[User],
-        viewer_ip: Optional[str] = None
+        user: Optional[User],  # type: ignore
+        viewer_ip: Optional[str] = None,
     ) -> None:
         content_type = ContentType.objects.get_for_model(content_object)
         try:
