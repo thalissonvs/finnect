@@ -39,33 +39,33 @@ ALLOWED_HOSTS = []
 
 # Application definition
 DJANGO_APPS = [
-    "django.contrib.auth",
-    "django.contrib.admin",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "django.contrib.sites",
-    "django.contrib.humanize",
+    'django.contrib.auth',
+    'django.contrib.admin',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.humanize',
 ]
 
 THIRD_PARTY_APPS = [
-    "rest_framework",
-    "django_countries",
-    "phonenumber_field",
-    "drf_spectacular",
-    "djoser",
-    "cloudinary",
-    "django_filters",
-    "djcelery_email",
-    "django_celery_beat",
+    'rest_framework',
+    'django_countries',
+    'phonenumber_field',
+    'drf_spectacular',
+    'djoser',
+    'cloudinary',
+    'django_filters',
+    'djcelery_email',
+    'django_celery_beat',
 ]
 
 
 LOCAL_APPS = [
-    "finnect.apps.userauth",
-    "finnect.apps.userprofile",
-    "finnect.apps.common",
+    'finnect.apps.userauth',
+    'finnect.apps.userprofile',
+    'finnect.apps.common',
 ]
 
 INSTALLED_APPS = LOCAL_APPS + DJANGO_APPS + THIRD_PARTY_APPS
@@ -202,6 +202,17 @@ cloudinary.config(
     api_key=CLOUDINARY_API_KEY,
     api_secret=CLOUDINARY_API_SECRET,
 )
+
+
+COOKIE_NAME = 'access'
+# Cookies Lax não são enviados em cross-site requests,
+# apenas por links externos.
+COOKIE_SAMESITE = 'Lax'
+COOKIE_PATH = '/'  # disponível em todas as URLs
+COOKIE_HTTPONLY = True  # protege o cookie de ataques XSS
+COOKIE_SECURE = (
+    getenv('COOKIE_SECURE', 'True') == 'True'
+)  # cookie só é enviado em conexões HTTPS
 
 ADMIN_URL = getenv("ADMIN_URL")
 SITE_NAME = getenv("SITE_NAME")
