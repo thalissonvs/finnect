@@ -87,9 +87,9 @@ class ProfileAdmin(admin.ModelAdmin):
             _('Identification'),
             {
                 'fields': (
-                    'means_of_identification',
-                    'id_issue_date',
-                    'id_expiry_date',
+                    'identification_means',
+                    'identification_issue_date',
+                    'identification_expiry_date',
                     'passport_number',
                 )
             },

@@ -8,6 +8,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
+from datetime import date
 
 
 from finnect.apps.common.models import TimeStampedModel
@@ -64,9 +65,13 @@ class Profile(TimeStampedModel):
     gender = models.CharField(
         _('Gender'), max_length=8, choices=Gender.choices, default=Gender.MALE
     )
-    date_of_birth = models.DateField(_('Date of Birth'))
+    date_of_birth = models.DateField(
+        _('Date of Birth'), default=date(2000, 1, 1)
+    )
     coutry_of_birth = CountryField(_('Country of Birth'), default='BR')
-    place_of_birth = models.CharField(_('Place of Birth'), max_length=255)
+    place_of_birth = models.CharField(
+        _('Place of Birth'), max_length=255, default='unknown'
+    )
     marital_status = models.CharField(
         _('Marital Status'),
         max_length=10,
@@ -79,15 +84,23 @@ class Profile(TimeStampedModel):
         choices=IdentificationMeans.choices,
         default=IdentificationMeans.PASSPORT,
     )
-    identification_issue_date = models.DateField(_('Issue Date'))
-    identification_expiry_date = models.DateField(_('Expiry Date'))
+    identification_issue_date = models.DateField(
+        _('ID or Passport Issue Date'),
+        default=date(2000, 1, 1),
+    )
+    identification_expiry_date = models.DateField(
+        _('ID or Passport Expiry Date'),
+        default=date(2030, 1, 1),
+    )
     passport_number = models.CharField(
         _('Passport Number'), max_length=20, blank=True, null=True
     )
     nationality = models.CharField(
         _('Nationality'), max_length=30, default='Unknown'
     )
-    phone_number = PhoneNumberField(_('Phone Number'))
+    phone_number = PhoneNumberField(
+        _('Phone Number'), default='+5589999999999'
+    )
     address = models.TextField(_('Address'), max_length=100, default='Unknown')
     city = models.CharField(_('City'), max_length=50, default='Unknown')
     country = CountryField(_('Country'), default='BR')
