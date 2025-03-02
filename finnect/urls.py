@@ -20,6 +20,8 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name='schema'),
         name='redoc',
     ),
+    path('api/v1/auth/', include('djoser.urls')),
+    path('api/v1/auth/', include('finnect.apps.userauth.urls')),
 ]
 
 admin.site.site_header = "Finnect Admin"
