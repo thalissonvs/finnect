@@ -83,24 +83,52 @@ class CustomTokenCreateView(TokenCreateView):
             logger.error(f'Error in login: {e}')
             email = request.data.get('email')
             user = User.objects.filter(email=email).first()
-            if user:
-                user.handle_failed_login_attempts()
-                failed_attempts = user.failed_login_attempts
-                logger.error(
-                    f'Failed login attempts for user: {email} = {failed_attempts}'
+            if not user:
+                return Response(
+                    {'error': 'Invalid credentials.'},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-                if failed_attempts >= settings.MAX_LOGIN_ATTEMPTS:
-                    return Response(
-                        {
-                            'error': 'Account is blocked due to multiple failed login attempts.'
-                            f'try again after {settings.BLOCKED_ACCOUNT_DURATION / 60} minutes.'
-                        },
-                        status=status.HTTP_403_FORBIDDEN,
-                    )
 
-            return Response(
-                {'error': 'Invalid credentials.'},
-                status=status.HTTP_400_BAD_REQUEST,
+            user.handle_failed_login_attempts()
+            failed_attempts = user.failed_login_attempts
+            logger.error(
+                f'Failed login attempts for user: {email} = {failed_attempts}'
             )
+            if failed_attempts >= settings.MAX_LOGIN_ATTEMPTS:
+                return Response(
+                    {
+                        'error': 'Account is blocked due to multiple failed login attempts.'
+                        f'try again after {settings.BLOCKED_ACCOUNT_DURATION / 60} minutes.'
+                    },
+                    status=status.HTTP_403_FORBIDDEN,
+                )
 
         return self._action(serializer)
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        refresh_token = request.COOKIES.get('refresh')
+        if refresh_token:
+            request.data['refresh'] = refresh_token
+
+        refresh_response = super().post(request, *args, **kwargs)
+        if not refresh_response.status_code == status.HTTP_200_OK:
+            return refresh_response
+
+        access_token = refresh_response.data.get('access')
+        refresh_token = refresh_response.data.get('refresh')
+
+        if not (access_token and refresh_token):
+            error_message = (
+                'Access or refresh token not found in refresh response data'
+            )
+            refresh_response.data['message'] = error_message
+            logger.error(error_message)
+            return refresh_response
+
+        set_auth_cookies(refresh_response, access_token, refresh_token)
+        refresh_response.data.pop('access', None)
+        refresh_response.data.pop('refresh', None)
+        refresh_response.data['message'] = 'Token refreshed successfully.'
+        return refresh_response
