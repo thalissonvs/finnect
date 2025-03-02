@@ -137,7 +137,7 @@ class CustomTokenRefreshView(TokenRefreshView):
 class OTPVerifyView(APIView):
     permission_classes = [permissions.AllowAny]
 
-    def post(self, request: Request) -> Response:
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         otp = request.data.get('otp')
 
         if not otp:
@@ -179,4 +179,15 @@ class OTPVerifyView(APIView):
         logger.info(
             f'User logged in successfully: {user.email} with OTP {otp}'
         )
+        return response
+
+
+class LogoutAPIView(APIView):
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        response = Response(
+            status=status.HTTP_204_NO_CONTENT,
+        )
+        response.delete_cookie('access')
+        response.delete_cookie('refresh')
+        response.delete_cookie('logged_in')
         return response
