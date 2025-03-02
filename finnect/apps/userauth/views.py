@@ -132,3 +132,51 @@ class CustomTokenRefreshView(TokenRefreshView):
         refresh_response.data.pop('refresh', None)
         refresh_response.data['message'] = 'Token refreshed successfully.'
         return refresh_response
+
+
+class OTPVerifyView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request: Request) -> Response:
+        otp = request.data.get('otp')
+
+        if not otp:
+            return Response(
+                {'error': 'OTP is required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = User.objects.filter(
+            otp=otp, otp_expiration_time__gt=timezone.now()
+        ).first()
+        if not user:
+            return Response(
+                {'error': 'Invalid or expired OTP.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if user.is_account_blocked:
+            return Response(
+                {
+                    'error': 'Account is blocked due to multiple failed login attempts.'
+                    f'try again after {settings.BLOCKED_ACCOUNT_DURATION / 60} minutes.'
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        user.verify_otp(otp)
+
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+        response = Response(
+            {
+                'success': 'OTP verified successfully.',
+            },
+            status=status.HTTP_200_OK,
+        )
+        set_auth_cookies(response, access_token, refresh_token)
+        logger.info(
+            f'User logged in successfully: {user.email} with OTP {otp}'
+        )
+        return response
