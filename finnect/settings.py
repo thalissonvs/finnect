@@ -318,7 +318,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://127.0.0.1",
 ]
 
-LOCKOUT_DURATION = timedelta(minutes=1)
+BLOCKED_ACCOUNT_DURATION = timedelta(minutes=1)
 MAX_LOGIN_ATTEMPTS = 3
 OTP_EXPIRATION = timedelta(minutes=1)
 BANK_NAME = getenv("BANK_NAME")
